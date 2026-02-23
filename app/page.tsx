@@ -1,16 +1,19 @@
 'use client';
 
 import { CheckCircle2, Zap, Shield, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import LoginModal from './components/LoginModal';
 
 export default function Home() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-blue-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
               <svg
                 className="w-6 h-6 text-white"
                 fill="none"
@@ -25,7 +28,7 @@ export default function Home() {
                 />
               </svg>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-green-600">
               ListManager
             </span>
           </div>
@@ -38,8 +41,8 @@ export default function Home() {
             <a href="#beneficios" className="text-gray-700 hover:text-blue-600 transition">
               Benefícios
             </a>
-            <button className="px-6 py-2 bg-gradient-to-r from-blue-400 to-purple-400 text-white rounded-full hover:shadow-lg transition font-medium">
-              Começar Grátis
+            <button onClick={() => setIsLoginOpen(true)} className="px-6 py-2 bg-green-600 text-white rounded-full hover:shadow-lg transition font-medium">
+              Login
             </button>
           </div>
 
@@ -57,7 +60,7 @@ export default function Home() {
         <div className="text-center max-w-2xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Organize suas tarefas com
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="block text-green-600">
               elegância e simplicidade
             </span>
           </h1>
@@ -66,7 +69,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-gradient-to-r from-blue-400 to-purple-400 text-white rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105">
+            <button className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105">
               Começar Agora
             </button>
             <button className="px-8 py-4 bg-white text-blue-600 rounded-full font-semibold border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition">
@@ -76,10 +79,10 @@ export default function Home() {
         </div>
 
         {/* Hero Image Placeholder */}
-        <div className="mt-16 rounded-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-8 md:p-12">
+        <div className="mt-16 rounded-2xl bg-green-100 p-8 md:p-12">
           <div className="aspect-video bg-white/40 rounded-xl backdrop-blur flex items-center justify-center">
             <div className="text-center">
-              <CheckCircle2 className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+              <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <p className="text-gray-600">Sua interface de tarefas aqui</p>
             </div>
           </div>
@@ -95,8 +98,8 @@ export default function Home() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Feature 1 */}
-          <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
-            <div className="w-12 h-12 bg-blue-400 rounded-lg flex items-center justify-center mb-4">
+          <div className="p-6 bg-green-100 rounded-2xl">
+            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
               <CheckCircle2 className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Criar Listas</h3>
@@ -104,8 +107,8 @@ export default function Home() {
           </div>
 
           {/* Feature 2 */}
-          <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl">
-            <div className="w-12 h-12 bg-purple-400 rounded-lg flex items-center justify-center mb-4">
+          <div className="p-6 bg-green-100 rounded-2xl">
+            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
               <Zap className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Rápido & Eficiente</h3>
@@ -113,8 +116,8 @@ export default function Home() {
           </div>
 
           {/* Feature 3 */}
-          <div className="p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl">
-            <div className="w-12 h-12 bg-pink-400 rounded-lg flex items-center justify-center mb-4">
+          <div className="p-6 bg-green-100 rounded-2xl">
+            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
               <Calendar className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Prazos</h3>
@@ -122,8 +125,8 @@ export default function Home() {
           </div>
 
           {/* Feature 4 */}
-          <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
-            <div className="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center mb-4">
+          <div className="p-6 bg-green-100 rounded-2xl">
+            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Seguro</h3>
@@ -148,7 +151,7 @@ export default function Home() {
                 'Notificações inteligentes',
               ].map((benefit, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-lg text-gray-700">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center mt-1">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-green-600 flex items-center justify-center mt-1">
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -158,9 +161,9 @@ export default function Home() {
               ))}
             </ul>
           </div>
-          <div className="rounded-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-8 flex items-center justify-center min-h-96">
+          <div className="rounded-2xl bg-green-100 p-8 flex items-center justify-center min-h-96">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Zap className="w-10 h-10 text-white" />
               </div>
               <p className="text-gray-600">Imagem de benefícios aqui</p>
@@ -171,12 +174,12 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="max-w-4xl mx-auto px-6 py-16 my-12">
-        <div className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-3xl p-12 text-center text-white shadow-xl">
+        <div className="bg-green-600 rounded-3xl p-12 text-center text-white shadow-xl">
           <h2 className="text-4xl font-bold mb-4">Pronto para começar?</h2>
           <p className="text-lg mb-8 opacity-90">
             Crie sua primeira lista e aumente sua produtividade hoje mesmo
           </p>
-          <button className="px-8 py-4 bg-white text-purple-600 rounded-full font-semibold hover:shadow-lg transition transform hover:scale-105">
+          <button className="px-8 py-4 bg-white text-green-600 rounded-full font-semibold hover:shadow-lg transition transform hover:scale-105">
             Criar Conta Grátis
           </button>
         </div>
@@ -188,6 +191,9 @@ export default function Home() {
           <p>&copy; 2026 ListManager. Todos os direitos reservados.</p>
         </div>
       </footer>
+
+      {/* Login Modal Component */}
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </div>
   );
 }
