@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Zap, Shield, Calendar } from 'lucide-react';
 import { useState } from 'react';
+import Link from 'next/link';
 import LoginModal from './components/LoginModal';
 
 export default function Home() {
@@ -69,12 +70,9 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105">
+            <Link href="/list" className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold hover:shadow-xl transition transform hover:scale-105 inline-block text-center">
               Começar Agora
-            </button>
-            <button className="px-8 py-4 bg-white text-blue-600 rounded-full font-semibold border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition">
-              Ver Demo
-            </button>
+            </Link>
           </div>
         </div>
 
