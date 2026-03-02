@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckCircle2, Circle, Trash2, Plus, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import api from '../config/axios';
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
   description: string;
   completed: boolean;
@@ -13,80 +14,169 @@ interface Task {
   dueDate: string;
 }
 
-const mockTasks: Task[] = [
-  {
-    id: 1,
-    title: 'Implementar autenticação',
-    description: 'Adicionar sistema de login e registro de usuários',
-    completed: true,
-    priority: 'alta',
-    dueDate: '2026-02-25',
-  },
-  {
-    id: 2,
-    title: 'Criar página de dashboard',
-    description: 'Desenvolver interface principal do aplicativo',
-    completed: false,
-    priority: 'alta',
-    dueDate: '2026-02-26',
-  },
-  {
-    id: 3,
-    title: 'Integrar API de tarefas',
-    description: 'Conectar backend com o frontend',
-    completed: false,
-    priority: 'média',
-    dueDate: '2026-02-28',
-  },
-  {
-    id: 4,
-    title: 'Adicionar testes unitários',
-    description: 'Criar testes para os componentes principais',
-    completed: true,
-    priority: 'média',
-    dueDate: '2026-03-01',
-  },
-  {
-    id: 5,
-    title: 'Documentar API',
-    description: 'Escrever documentação das endpoints da API',
-    completed: false,
-    priority: 'baixa',
-    dueDate: '2026-03-05',
-  },
-];
+interface ApiList {
+  id?: number | string;
+  uuid?: string;
+  title?: string;
+  name?: string;
+  nome?: string;
+  description?: string;
+  descricao?: string;
+  completed?: boolean;
+  concluida?: boolean;
+  priority?: string;
+  prioridade?: string;
+  dueDate?: string;
+  due_date?: string;
+  dataLimite?: string;
+}
+
+const today = new Date().toISOString().split('T')[0];
+
+const normalizePriority = (value: unknown): Task['priority'] => {
+  if (typeof value !== 'string') return 'média';
+  const priority = value.trim().toLowerCase();
+
+  if (priority === 'alta') return 'alta';
+  if (priority === 'baixa') return 'baixa';
+  return 'média';
+};
+
+const extractListsPayload = (payload: unknown): ApiList[] => {
+  if (Array.isArray(payload)) return payload as ApiList[];
+  if (payload && typeof payload === 'object') {
+    const response = payload as Record<string, unknown>;
+
+    if (Array.isArray(response.lists)) return response.lists as ApiList[];
+    if (Array.isArray(response.data)) return response.data as ApiList[];
+    if (response.data && typeof response.data === 'object') {
+      const nestedData = response.data as Record<string, unknown>;
+      if (Array.isArray(nestedData.lists)) return nestedData.lists as ApiList[];
+    }
+  }
+
+  return [];
+};
+
+const extractCreatedListPayload = (payload: unknown): ApiList | null => {
+  if (payload && typeof payload === 'object') {
+    const response = payload as Record<string, unknown>;
+
+    if (response.list && typeof response.list === 'object') return response.list as ApiList;
+    if (response.data && typeof response.data === 'object') return response.data as ApiList;
+    return response as ApiList;
+  }
+
+  return null;
+};
+
+const mapApiListToTask = (item: ApiList, index: number): Task => {
+  const id = String(item.id ?? item.uuid ?? `temp-${index + 1}`);
+  const title = item.title || item.name || item.nome || `Lista ${index + 1}`;
+
+  return {
+    id,
+    title,
+    description: item.description || item.descricao || '',
+    completed: Boolean(item.completed ?? item.concluida),
+    priority: normalizePriority(item.priority ?? item.prioridade),
+    dueDate: item.dueDate || item.due_date || item.dataLimite || today,
+  };
+};
 
 export default function ListPage() {
-  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [deletingTaskIds, setDeletingTaskIds] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const toggleTask = (id: number) => {
+  useEffect(() => {
+    const fetchLists = async () => {
+      try {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const response = await api.get('/lists');
+
+        const parsedLists = extractListsPayload(response.data);
+        setTasks(parsedLists.map(mapApiListToTask));
+      } catch {
+        setErrorMessage('Não foi possível carregar as listas do backend.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLists();
+  }, []);
+
+  const toggleTask = (id: string) => {
     setTasks(tasks.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const deleteTask = async (id: string) => {
+    if (deletingTaskIds.includes(id)) return;
+
+    try {
+      setErrorMessage(null);
+      setDeletingTaskIds((previousIds) => [...previousIds, id]);
+
+      await api.delete(`/lists/${id}`);
+      setTasks((previousTasks) => previousTasks.filter((task) => task.id !== id));
+    } catch {
+      console.error(`Erro ao deletar a lista com id ${id}`);
+      setErrorMessage('Não foi possível deletar a lista no backend.');
+    } finally {
+      setDeletingTaskIds((previousIds) => previousIds.filter((taskId) => taskId !== id));
+    }
   };
 
-  const addTask = () => {
-    if (newTask.trim()) {
-      const task: Task = {
-        id: Math.max(...tasks.map(t => t.id), 0) + 1,
-        title: newTask,
-        description: '',
-        completed: false,
-        priority: 'média',
-        dueDate: new Date().toISOString().split('T')[0],
-      };
-      setTasks([...tasks, task]);
+  const addTask = async () => {
+    const title = newTask.trim();
+    if (!title) return;
+
+    try {
+      setIsCreating(true);
+      setErrorMessage(null);
+
+      const response = await api.post('/lists', { title });
+      const createdItem = extractCreatedListPayload(response.data);
+
+      if (createdItem) {
+        setTasks((previousTasks) => [
+          ...previousTasks,
+          mapApiListToTask(createdItem, previousTasks.length),
+        ]);
+      } else {
+        setTasks((previousTasks) => [
+          ...previousTasks,
+          {
+            id: `temp-${Date.now()}`,
+            title,
+            description: '',
+            completed: false,
+            priority: 'média',
+            dueDate: today,
+          },
+        ]);
+      }
+
       setNewTask('');
+    } catch {
+      setErrorMessage('Não foi possível criar a lista no backend.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
   const completedCount = tasks.filter(t => t.completed).length;
-  const completedPercentage = Math.round((completedCount / tasks.length) * 100);
+  const completedPercentage = tasks.length
+    ? Math.round((completedCount / tasks.length) * 100)
+    : 0;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -147,27 +237,41 @@ export default function ListPage() {
               type="text"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
+              disabled={isCreating}
               onKeyPress={(e) => e.key === 'Enter' && addTask()}
               placeholder="Adicione uma nova tarefa..."
               className="flex-1 px-4 py-3 rounded-lg border-2 border-green-200 focus:border-green-400 focus:outline-none bg-green-50 text-gray-900 placeholder-gray-500 transition"
             />
             <button
               onClick={addTask}
+              disabled={isCreating}
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 font-semibold"
             >
               <Plus className="w-5 h-5" />
-              Adicionar
+              {isCreating ? 'Adicionando...' : 'Adicionar'}
             </button>
           </div>
         </div>
 
         {/* Tasks List */}
         <div className="space-y-4">
-          {tasks.length === 0 ? (
+          {isLoading && (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">Carregando listas...</p>
+            </div>
+          )}
+
+          {!isLoading && errorMessage && (
+            <div className="text-center py-12">
+              <p className="text-red-600 text-lg">{errorMessage}</p>
+            </div>
+          )}
+
+          {!isLoading && !errorMessage && tasks.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600 text-lg">Nenhuma tarefa ainda. Crie uma para começar!</p>
             </div>
-          ) : (
+          ) : !isLoading && !errorMessage ? (
             tasks.map((task) => (
               <div
                 key={task.id}
@@ -218,14 +322,15 @@ export default function ListPage() {
 
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition flex-shrink-0"
+                    disabled={deletingTaskIds.includes(task.id)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
               </div>
             ))
-          )}
+          ) : null}
         </div>
       </main>
     </div>
